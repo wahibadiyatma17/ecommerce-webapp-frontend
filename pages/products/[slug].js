@@ -1,22 +1,30 @@
-import Head from 'next/Head'
-import { API_URL, fromImageToUrl } from '../../utils/urls'
-import { twoDecimals } from '../../utils/format'
+import Head from 'next/head'
 
+import BuyButton from '../../components/BuyButton'
+
+import { fromImageToUrl, API_URL } from '../../utils/urls'
+import { twoDecimals } from '../../utils/format'
 
 const Product = ({ product }) => {
     return (
         <div>
+
             <Head>
                 {product.meta_title &&
                     <title>{product.meta_title}</title>
                 }
                 {product.meta_description &&
-                    <meta name="description" content={product.meta_description} />
+                    <meta name="description"
+                        content={product.meta_description}
+                    />
                 }
+
             </Head>
+
             <h3>{product.name}</h3>
             <img src={fromImageToUrl(product.image)} />
             <h3>{product.name}</h3>
+            <BuyButton product={product} />
             <p>${twoDecimals(product.price)}</p>
 
             <p>
@@ -24,7 +32,6 @@ const Product = ({ product }) => {
             </p>
         </div>
     )
-
 }
 
 export async function getStaticProps({ params: { slug } }) {
@@ -33,23 +40,21 @@ export async function getStaticProps({ params: { slug } }) {
 
     return {
         props: {
-            product: found[0] //[0] because the API response in found is an array
+            product: found[0]
         }
     }
 }
 
 export async function getStaticPaths() {
-    //Retrieve all possible path    
-    const products_res = await fetch(`${API_URL}/products/`)
+    // Get external data from the file system, API, DB, etc.
+    const products_res = await fetch(`${API_URL}/products`)
     const products = await products_res.json()
-
-    //Return them into nextJS content
     return {
-        paths: products.map(product => ({
-            params: { slug: String(product.slug) }
+        paths: products.map(el => ({
+            params: { slug: String(el.slug) }
         })),
-        fallback: false //return 404 error if params is not found
-    }
+        fallback: false
+    };
 }
 
-export default Product;
+export default Product
